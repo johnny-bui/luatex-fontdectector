@@ -52,6 +52,22 @@ tikz_suffix = [[
 \end{tikzpicture}
 ]]
 
+text_probe = 
+[[Vögel üben Gezwitscher oft ähnlich packend wie Jupp die Maus auf dem Xylophon einer Qualle. 1234567890]]
+
+function make_probe_text()
+	local cmd = [[
+\%s{%s}
+	]]
+	text_size = {"tiny","scriptsize","footnotesize",
+	"small", "normalsize", "large", "Large"}
+	local text = ""
+	for _,size in ipairs(text_size)  do
+		text = text .. string.format(cmd,size,text_probe) .. "\n"
+	end
+	return text
+end
+
 function makeline(vector, line_length, f)
 	local latex_code = tikz_prefix .. "\n"
 	f(tikz_prefix)
@@ -67,31 +83,27 @@ function makeline(vector, line_length, f)
 	local base_line =  [[\draw[help lines,red, -] let \p1 = (%i.base), \p2 = (%i.base) in (-0.5ex,\y1) -- (\x2+1ex,\y1) ;]]
 	local below_line = [[\node[noname] (%i) [below=of %i] {%s\\ \textnormal{%s}};]]
 	local mark = 1
-	local i = 0
-	for _,c in ipairs(vector) do
-		--local c = vector:sub(i,i)
-		i = i + 1
-		if i ~= 1 then
-			if i % line_length == 1 then
-				line = string.format(below_line,i, i-line_length,c,c)
-				f(line)
-				latex_code = latex_code .. line .. "\n"
-				mark = i
-			else
-				line = string.format(midle_line,i,i-1,c,c)
-				f(line)
-				latex_code = latex_code .. line .. "\n"
-			end
-			if i % line_length == 0 then
-				line = string.format(base_line, i-line_length+1, i)
-				f(line)
-				latex_code = latex_code .. line .. "\n"
-				f("%%%%")
-			end
+	for i = 2,#vector do
+		local c = vector[i]
+		if i % line_length == 1 then
+			line = string.format(below_line,i, i-line_length,c,c)
+			f(line)
+			latex_code = latex_code .. line .. "\n"
+			mark = i
+		else
+			line = string.format(midle_line,i,i-1,c,c)
+			f(line)
+			latex_code = latex_code .. line .. "\n"
+		end
+		if i % line_length == 0 then
+			line = string.format(base_line, i-line_length+1, i)
+			f(line)
+			latex_code = latex_code .. line .. "\n"
+			f("%%%%")
 		end
 	end
 	if #vector % line_length ~= 0 then
-		line = string.format(base_line,mark,i)
+		line = string.format(base_line,mark,#vector)
 		f(line)
 		latex_code = latex_code .. line .. "\n"
 	end

@@ -2,6 +2,8 @@
 \usepackage{luacode,luaotfload}
 \usepackage{fontspec}
 \usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{arrows,calc,positioning,shapes.geometric}
 %\usepackage{a4wide}
 \usepackage{layout}
 
@@ -13,7 +15,9 @@
 \begin{document}
 
 
-\begin{luacode}
+\begin{luacode*}
+
+dofile("makeline.lua")
 
 function contains(t, e)
 	for i = 1,#t do
@@ -28,9 +32,13 @@ tabu_font = {
 "blsy",
 "SkakNew-Diagram","SkakNew-Figurine","SkakNew-Figurine","SkakNew-DiagramT",
 "ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
-"rblmi"}
+"rblmi",
+"Bitter-Italic","Bitter-Bold",
+"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
+"SteveHand"
+}
 
-function foreachinorder(t, f, cmp)
+function foreachinorder(t, f, g, cmp)
     -- first extract a list of the keys from t
     local font_list = {}
     local font_family = {}
@@ -67,15 +75,16 @@ function foreachinorder(t, f, cmp)
     
     -- finally, loop over the keys in sorted order, and operate
     -- on elements of t
-    local i = 0
-    local max =1000
+    local i = 1
+    local max = 800
     for _ , k in ipairs(font_family) do
 		local font_name = font_list[k]
-		print("family", k)
+		f(k)
+		table.sort(font_name,cmp)
 		for _, font in ipairs(font_name) do
 			-- print (" " , k, "fn:" , font)
-			f(i, k,font)
-			print(i)
+			g(font)
+			--print(i)
 			i = i + 1
 			if i > max then 
 				return
@@ -84,29 +93,54 @@ function foreachinorder(t, f, cmp)
     end
 end
 
-function print_font(index, familyname, fontname)
-	familyname_code = "\\fontspec[Ligatures=TeX]{Inconsolata}" .. index .. "." .. familyname
-	tex.print(familyname_code)
-	tex.print(',')
-	text_code =  "\\fontspec[Ligatures=TeX]{" .. fontname .. "}" .. fontname
-	-- text_code =  "\\texttt{" .. v.fontname .. "}"
-	-- print(text_code)
-	tex.print(text_code)
-	tex.print('\\par')
-end
-
 function str_sort(a, b)
 	return string.lower(a) < string.lower(b)
 end
-\end{luacode}
 
-\begin{luacode}
+
+function tex_font_family(font_family)
+	print(font_family)
+	local section = string.format([[
+\section{%s}
+]], font_family)
+	file:write(section)
+	--tex.print("\\hfill\\\\")
+end
+
+function tex_font_name(font_name)
+	print("",font_name)
+
+	local subsection = string.format("\\subsection{%s}\n",font_name)
+	print(subsection)
+	file:write(subsection)
+
+	local set_font_code = string.format([[\fontspec[Ligatures=TeX,Scale=1]{%s}]], font_name)
+	file:write(set_font_code)
+	-- local latex_code = set_font_code .. "\n"
+	--local lower = makeline("abcdefghijklmnopqrstuvwxyz",7, function(a) end ) .. "\n"
+	--file:write(lower)
+	--local upper = makeline("ABCDEFGHIJKLMNOPQRSTUVWXYZ",7, function(a) end ) .. "\n"
+	--file:write(upper)
+	--digits = makeline({"0","1","\\_", "\\%", "\\&", "ä", "ö", "ü", "ß"},5, function(a) end ) .. "\n"
+	-- file:write(digits)
+	file:write(make_probe_text())
+end
+
+\end{luacode*}
+
+
+\textnormal{Font list}
+
+
+\begin{luacode*}
 
 myfonts=dofile(fonts.names.path.path)
+file = io.open("temp.tex", "w")
+file:write(doc_prefix)
+foreachinorder(myfonts.mappings, tex_font_family, tex_font_name, str_sort)
+file:write(doc_suffix)
 
-foreachinorder(myfonts.mappings, print_font, str_sort)
 
-
-\end{luacode}
+\end{luacode*}
 
 \end{document}
