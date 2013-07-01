@@ -1,21 +1,21 @@
 doc_prefix=[[
 \documentclass[11pt,a4paper]{article}
-\usepackage{luacode,luaotfload}
+%\usepackage{luacode,luaotfload}
 \usepackage{fontspec}
 \usepackage{geometry}
 \usepackage{tikz}
 \usetikzlibrary{arrows,calc,positioning,shapes.geometric}
 %\usepackage{a4wide}
 \usepackage{layout}
-
+\setcounter{secnumdepth}{-1}
 \geometry{
   margin=2cm
 }
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 \title{Font-List}
 \author{Hong Phuc Bui}
-\date{27.06.2013}
+\date{27.\,06.\,2013}
 
 \begin{document}
 \setlength{\parindent}{0pt}
@@ -25,6 +25,10 @@ doc_prefix=[[
 
 doc_suffix=[[
 \end{document}
+]]
+
+subsection_toc = [[
+\subsection{%s {\fontspec[Ligatures=TeX,Scale=1]{%s}abc ABC 12340}}
 ]]
 
 tikz_prefix = [[
@@ -61,7 +65,7 @@ function make_probe_text()
 	]]
 	text_size = {"tiny","scriptsize","footnotesize",
 	"small", "normalsize", "large", "Large"}
-	local text = ""
+	local text = "\n"
 	for _,size in ipairs(text_size)  do
 		text = text .. string.format(cmd,size,text_probe) .. "\n"
 	end
@@ -72,16 +76,16 @@ function makeline(vector, line_length, f)
 	local latex_code = tikz_prefix .. "\n"
 	f(tikz_prefix)
 
-	local first_line = [[\node[noname] (1)              {%s\\ \textnormal{%s}};]]
+	local first_line = [[\node[noname] (1)              {\symbol{%04d}\\ \textnormal{\symbol{%04d}}};]]
 
 	local line = string.format(first_line,vector[1], vector[1])
 	
 	f(line)
 	latex_code = latex_code .. line .. "\n"
 
-	local midle_line = [[\node[noname] (%i) [right=of %i] {%s\\ \textnormal{%s}};]]
+	local midle_line = [[\node[noname] (%i) [right=of %i] {\symbol{%04d}\\ \textnormal{\symbol{%04d}}};]]
 	local base_line =  [[\draw[help lines,red, -] let \p1 = (%i.base), \p2 = (%i.base) in (-0.5ex,\y1) -- (\x2+1ex,\y1) ;]]
-	local below_line = [[\node[noname] (%i) [below=of %i] {%s\\ \textnormal{%s}};]]
+	local below_line = [[\node[noname] (%i) [below=of %i] {\symbol{%04d}\\ \textnormal{\symbol{%04d}}};]]
 	local mark = 1
 	for i = 2,#vector do
 		local c = vector[i]
@@ -113,6 +117,13 @@ function makeline(vector, line_length, f)
 	return latex_code
 end
 
+function maketable(from, to, step, tab)
+	tab= {}
+	for i = from, to, step do
+		print i
+		tab[#tab+1] = i
+	end
+end
 
 
 -- makeline("abcdefghijklmkopqrst",6, print)

@@ -1,20 +1,9 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{luacode,luaotfload}
 \usepackage{fontspec}
-\usepackage{geometry}
-\usepackage{tikz}
-\usetikzlibrary{arrows,calc,positioning,shapes.geometric}
-%\usepackage{a4wide}
-\usepackage{layout}
 
-\geometry{
-  margin=2cm
-}
-\author{Hong Phuc Bui}
-\date{27.06.2013}
+
 \begin{document}
-
-
 \begin{luacode*}
 
 dofile("makeline.lua")
@@ -34,20 +23,16 @@ tabu_font = {
 "ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
 "rblmi",
 "Bitter-Italic","Bitter-Bold",
-"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
-"SteveHand"
+--"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
+--"SteveHand"
 }
 
-function foreachinorder(t, f, g, cmp)
+function foreachinorder(t, cmp)
     -- first extract a list of the keys from t
     local font_list = {}
     local font_family = {}
     for k,v in ipairs(t) do
 		if not contains(tabu_font, v.fontname) then
-			--font_key[#font_key+1] = v.fontname
-			--font_list[v.fontname] = v.familyname
-			--print(v.fontname)
-			--print(v.fontname, v.familyname)
 			if font_family[1] == nil then
 				print ("init font_family")
 				font_family[1] = v.familyname
@@ -72,25 +57,25 @@ function foreachinorder(t, f, g, cmp)
     end
     
     table.sort(font_family,cmp)
-    
+    return font_family, font_list
     -- finally, loop over the keys in sorted order, and operate
     -- on elements of t
-    local i = 1
-    local max = 800
-    for _ , k in ipairs(font_family) do
-		local font_name = font_list[k]
-		f(k)
-		table.sort(font_name,cmp)
-		for _, font in ipairs(font_name) do
+    --local i = 1
+    --local max = 200
+    --for _ , k in ipairs(font_family) do
+	--	local font_name = font_list[k]
+	--	f(k)
+	--	table.sort(font_name,cmp)
+	--	for _, font in ipairs(font_name) do
 			-- print (" " , k, "fn:" , font)
-			g(font)
+	--		g(font)
 			--print(i)
-			i = i + 1
-			if i > max then 
-				return
-			end
-		end
-    end
+	--		i = i + 1
+	--		if i > max then 
+	--			return
+	--		end
+	--	end
+    --end
 end
 
 function str_sort(a, b)
@@ -110,7 +95,7 @@ end
 function tex_font_name(font_name)
 	print("",font_name)
 
-	local subsection = string.format("\\subsection{%s}\n",font_name)
+	local subsection = string.format(subsection_toc,font_name,font_name)
 	print(subsection)
 	file:write(subsection)
 
@@ -126,21 +111,50 @@ function tex_font_name(font_name)
 	file:write(make_probe_text())
 end
 
-\end{luacode*}
-
-
-\textnormal{Font list}
-
-
-\begin{luacode*}
 
 myfonts=dofile(fonts.names.path.path)
-file = io.open("temp.tex", "w")
+temp_fn = "temp.tex"
+file = io.open(temp_fn, "w")
 file:write(doc_prefix)
-foreachinorder(myfonts.mappings, tex_font_family, tex_font_name, str_sort)
+font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
+
+local i = 1
+local max = 400
+
+for _ , k in ipairs(font_family) do
+	local font_name = font_list[k]
+	tex_font_family(k)
+	table.sort(font_name,cmp)
+	for _, font in ipairs(font_name) do
+		print (" " , k, "fn:" , font)
+			tex_font_name(font)
+			print(i)
+			i = i + 1
+		if i > max then 
+			break
+		end
+	end
+	if i > max then break end
+end
+
 file:write(doc_suffix)
+file:close()
+
+lua_cmd = string.format("lualatex -interaction nonstopmode %s", temp_fn)
+print(lua_cmd)
+r = os.execute(lua_cmd)
+print("return value", r)
+if (r == 0) then
+	--r = os.execute(lua_cmd)
+	--r = os.execute(lua_cmd)
+else
+	print ("call lualatex returned:",r)
+end
+
 
 
 \end{luacode*}
-
 \end{document}
+
+
+
