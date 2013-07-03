@@ -6,7 +6,7 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 800
+local max = 50
 
 dofile("makeline.lua")
 
@@ -29,27 +29,25 @@ function foreachinorder(t, cmp)
     local font_list = {}
     local font_family = {}
     for k,v in ipairs(t) do
-		if not contains(tabu_font, v.fontname) then
-			if font_family[1] == nil then
-				print ("init font_family")
-				font_family[1] = v.familyname
-				font_list[v.familyname] = {v.fontname}
+		if font_family[1] == nil then
+			print ("init font_family")
+			font_family[1] = v.familyname
+			font_list[v.familyname] = {v.fontname}
+		end
+		local font_name = v.fontname
+		local last_family_name = v.familyname
+		print("name ", font_name , " family ", last_family_name)
+		if (contains(font_family, v.familyname)) then
+			print("", font_name , " to family ", last_family_name)
+			local font_tab = font_list[last_family_name]
+			if not contains(font_tab, font_name) then
+				font_tab[#font_tab +1] = font_name
 			end
-			local font_name = v.fontname
-			local last_family_name = v.familyname
-			print("name ", font_name , " family ", last_family_name)
-			if (contains(font_family, v.familyname)) then
-				print("", font_name , " to family ", last_family_name)
-				local font_tab = font_list[last_family_name]
-				if not contains(font_tab, font_name) then
-					font_tab[#font_tab +1] = font_name
-				end
-			else
-				print ("insert new font family ", v.familyname)
-				font_family[#font_family+1] = v.familyname
-				print ("add ", font_name , "to family", v.familyname)
-				font_list[v.familyname] = {font_name}
-			end
+		else
+			print ("insert new font family ", v.familyname)
+			font_family[#font_family+1] = v.familyname
+			print ("add ", font_name , "to family", v.familyname)
+			font_list[v.familyname] = {font_name}
 		end
     end
     
@@ -92,19 +90,21 @@ font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 
 local i = 1
 for _ , k in ipairs(font_family) do
-	local font_face= font_list[k]
-	tex_font_family(k)
-	table.sort(font_face,cmp)
-	for _, font in ipairs(font_face) do
-		print (" " , k, "fn:" , font)
-			tex_font_name(font)
-			print(i)
-			i = i + 1
-		if i > max then 
-			break
+	if not contains(tabu_font, k) then
+		local font_face= font_list[k]
+		tex_font_family(k)
+		table.sort(font_face,cmp)
+		for _, font in ipairs(font_face) do
+			print (" " , k, "fn:" , font)
+				tex_font_name(font)
+				print(i)
+				i = i + 1
+			if i > max then 
+				break
+			end
 		end
+		if i > max then break end
 	end
-	if i > max then break end
 end
 
 file:write(doc_suffix)
@@ -123,11 +123,13 @@ file:close()
 
 
 for i,k in ipairs(font_family) do
-	local font_face=font_list[k]
-	local file_name = k:gsub("%s+","_")
-	local tex_file = io.open(string.format(out_dir_name,file_name),"w")
-	write_glyphen_test_file(k,font_face,tex_file)
-	if  i >= max then break end
+	if not contains(tabu_font, k) then
+		local font_face=font_list[k]
+		local file_name = k:gsub("%s+","_")
+		local tex_file = io.open(string.format(out_dir_name,file_name),"w")
+		write_glyphen_test_file(k,font_face,tex_file)
+		if  i >= max then break end
+	end
 end
 
 --compile_all_tex = [[for f in `ls texfont/*.tex` ; do lualatex -output-directory=texfont -interaction nonstopmode $f &  done]]
