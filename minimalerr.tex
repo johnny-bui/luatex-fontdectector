@@ -1,0 +1,52 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{luacode,luaotfload}
+\usepackage{fontspec}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,calc,positioning,shapes.geometric}
+
+
+\begin{document}
+
+
+\begin{luacode*}
+latex_code = [[
+\fontspec[Ligatures=TeX,Scale=4]{aakar-medium}
+\begin{tikzpicture}[%
+  ->,
+  very thin, shorten >=1pt,
+  >=latex,
+  node distance=-0.1pt,
+  noname/.style={%
+    rectangle, %rounded corners=9pt,
+    text height=1em,
+    text depth=.25ex,
+    text width=1ex,
+    text centered,
+    minimum height=2.5cm,
+    minimum width=2cm,
+    inner sep=1.ex,
+    %draw=black!50,fill=black!20
+    draw=black
+  }
+]
+
+\node[noname] (1)              {a\\ \textnormal{a}};
+\node[noname] (2) [right=of 1] {b\\ \textnormal{b}};
+\node[noname] (3) [right=of 2] {c\\ \textnormal{c}};
+\node[noname] (4) [right=of 3] {d\\ \textnormal{d}};
+\node[noname] (5) [right=of 4] {e\\ \textnormal{e}};
+\node[noname] (6) [right=of 5] {f\\ \textnormal{f}};
+\draw[help lines,red, -] let \p1 = (1.base), \p2 = (6.base) in (-0.5ex,\y1) -- (\x2+0.5ex,\y1) ;
+\node[noname] (7) [below=of 1] {g\\ \textnormal{g}};
+\node[noname] (8) [right=of 7] {h\\ \textnormal{h}};
+\node[noname] (9) [right=of 8] {i\\ \textnormal{i}};
+\node[noname] (10) [right=of 9] {j\\ \textnormal{j}};
+\draw[help lines,red, -] let \p1 = (7.base), \p2 = (10.base) in (-0.5ex,\y1) -- (\x2+0.5ex,\y1) ;
+\end{tikzpicture}
+]]
+
+tex.sprint(latex_code)
+\end{luacode*}
+
+\end{document}
