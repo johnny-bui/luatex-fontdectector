@@ -6,14 +6,11 @@
 \begin{document}
 \begin{luacode*}
 
+local max = 800
+
 dofile("makeline.lua")
 
-function contains(t, e)
-	for i = 1,#t do
-		if t[i] == e then return true end
-	end
-	return false
-end
+
 
 tabu_font = {
 "MnSymbol12", "MnSymbol10", "MnSymbol9","MnSymbol8","MnSymbol7","MnSymbol6", "MnSymbol5",
@@ -58,29 +55,8 @@ function foreachinorder(t, cmp)
     
     table.sort(font_family,cmp)
     return font_family, font_list
-    -- finally, loop over the keys in sorted order, and operate
-    -- on elements of t
-    --local i = 1
-    --local max = 200
-    --for _ , k in ipairs(font_family) do
-	--	local font_name = font_list[k]
-	--	f(k)
-	--	table.sort(font_name,cmp)
-	--	for _, font in ipairs(font_name) do
-			-- print (" " , k, "fn:" , font)
-	--		g(font)
-			--print(i)
-	--		i = i + 1
-	--		if i > max then 
-	--			return
-	--		end
-	--	end
-    --end
 end
 
-function str_sort(a, b)
-	return string.lower(a) < string.lower(b)
-end
 
 
 function tex_font_family(font_family)
@@ -101,31 +77,25 @@ function tex_font_name(font_name)
 
 	local set_font_code = string.format([[\fontspec[Ligatures=TeX,Scale=1]{%s}]], font_name)
 	file:write(set_font_code)
-	-- local latex_code = set_font_code .. "\n"
-	--local lower = makeline("abcdefghijklmnopqrstuvwxyz",7, function(a) end ) .. "\n"
-	--file:write(lower)
-	--local upper = makeline("ABCDEFGHIJKLMNOPQRSTUVWXYZ",7, function(a) end ) .. "\n"
-	--file:write(upper)
-	--digits = makeline({"0","1","\\_", "\\%", "\\&", "ä", "ö", "ü", "ß"},5, function(a) end ) .. "\n"
-	-- file:write(digits)
 	file:write(make_probe_text())
 end
 
 
 myfonts=dofile(fonts.names.path.path)
-temp_fn = "temp.tex"
+
+local out_dir_name = "./texfont/%s.tex"
+temp_fn = string.format(out_dir_name,"temp")
 file = io.open(temp_fn, "w")
-file:write(doc_prefix)
+file:write(string.format(doc_prefix,"Font-List"))
 font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 
-local i = 1
-local max = 400
 
+local i = 1
 for _ , k in ipairs(font_family) do
-	local font_name = font_list[k]
+	local font_face= font_list[k]
 	tex_font_family(k)
-	table.sort(font_name,cmp)
-	for _, font in ipairs(font_name) do
+	table.sort(font_face,cmp)
+	for _, font in ipairs(font_face) do
 		print (" " , k, "fn:" , font)
 			tex_font_name(font)
 			print(i)
@@ -140,18 +110,35 @@ end
 file:write(doc_suffix)
 file:close()
 
-lua_cmd = string.format("lualatex -interaction nonstopmode %s", temp_fn)
-print(lua_cmd)
-r = os.execute(lua_cmd)
-print("return value", r)
-if (r == 0) then
+--lua_cmd = string.format("lualatex -interaction nonstopmode -output-directory=texfont %s", temp_fn)
+--print(lua_cmd)
+--r = os.execute(lua_cmd)
+--print("return value", r)
+--if (r == 0) then
 	--r = os.execute(lua_cmd)
 	--r = os.execute(lua_cmd)
-else
-	print ("call lualatex returned:",r)
+--else
+--	print ("call lualatex returned not null valu not null valuee:",r)
+--end
+
+
+for i,k in ipairs(font_family) do
+	local font_face=font_list[k]
+	local file_name = k:gsub("%s+","_")
+	local tex_file = io.open(string.format(out_dir_name,file_name),"w")
+	write_glyphen_test_file(k,font_face,tex_file)
+	if  i >= max then break end
 end
 
-
+--compile_all_tex = [[for f in `ls texfont/*.tex` ; do lualatex -output-directory=texfont -interaction nonstopmode $f &  done]]
+--local r = os.execute(compile_all_tex)
+--print("return value", r)
+--if (r == 0) then
+--	r = os.execute(lua_cmd)
+--	r = os.execute(lua_cmd)
+--else
+--	print ("call lualatex returned not null valu not null valuee:",r)
+--end
 
 \end{luacode*}
 \end{document}
