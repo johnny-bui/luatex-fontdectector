@@ -151,9 +151,14 @@ function write_glyphen_test_file(font_family, font_name, tex_file)
 		local latex_code = make_block(0x00A1, 0x00FF,"latin supplement")
 		tex_file:write(latex_code)
 
-		--local latex_code = make_block(0x0100, 0x017F,"latin extended A")
-		--tex_file:write(latex_code)
+		local latex_code = make_block(0x0100, 0x017F,"latin extended A")
+		tex_file:write(latex_code)
 		
+		local latex_code = make_block(0x0180, 0x024F,"latin extended B")
+		tex_file:write(latex_code)
+		
+		local latex_code = make_block(0x1E00, 0x01EFF,"latin extended additional")
+		tex_file:write(latex_code)
 		--local latex_code = make_block(0x0400, 0x04FF,"Cyrillic")
 		--tex_file:write(latex_code)
 		

@@ -6,7 +6,7 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 50
+local max = 1000
 
 dofile("makeline.lua")
 
@@ -123,9 +123,9 @@ file:close()
 
 
 for i,k in ipairs(font_family) do
-	if not contains(tabu_font, k) then
-		local font_face=font_list[k]
-		local file_name = k:gsub("%s+","_")
+	local font_face=font_list[k]
+	if not contains(tabu_font,font_face) then
+		local file_name = k:gsub("%s+","_"):gsub("'","_")
 		local tex_file = io.open(string.format(out_dir_name,file_name),"w")
 		write_glyphen_test_file(k,font_face,tex_file)
 		if  i >= max then break end
