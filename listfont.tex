@@ -6,7 +6,7 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 1000
+local max = 800
 
 dofile("makeline.lua")
 
@@ -21,7 +21,8 @@ tabu_font = {
 "rblmi",
 "Bitter-Italic","Bitter-Bold",
 --"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
---"SteveHand"
+--"SteveHand",
+--"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic"
 }
 
 function foreachinorder(t, cmp)
@@ -61,15 +62,20 @@ function tex_font_family(font_family)
 	print(font_family)
 	local section = string.format([[
 \section{%s}
-]], font_family)
+]], font_family,font_family)
 	file:write(section)
 	--tex.print("\\hfill\\\\")
 end
 
 function tex_font_name(font_name)
 	print("",font_name)
+-- %%\subsection{%s {\fontspec[Ligatures=TeX]{%s}abc ABC 12340}}
+	subsection_toc = string.format( [[
+\subsection{%s\hspace{3ex}\hfill|{\fontspec[Ligatures=TeX]{%s}abc ABC 12340}|}
+%%\addcontentsline{toc}{subsection}{\hspace{3ex}|{\fontspec[Ligatures=TeX]{%%s}abc ABC 12340}|}
+]], font_name,font_name)
 
-	local subsection = string.format(subsection_toc,font_name,font_name)
+	local subsection = subsection_toc
 	print(subsection)
 	file:write(subsection)
 
@@ -95,12 +101,14 @@ for _ , k in ipairs(font_family) do
 		tex_font_family(k)
 		table.sort(font_face,cmp)
 		for _, font in ipairs(font_face) do
-			print (" " , k, "fn:" , font)
-				tex_font_name(font)
-				print(i)
-				i = i + 1
-			if i > max then 
-				break
+			if not contains(tabu_font, font) then
+				print (" " , k, "fn:" , font)
+					tex_font_name(font)
+					print(i)
+					i = i + 1
+				if i > max then 
+					break
+				end
 			end
 		end
 		if i > max then break end

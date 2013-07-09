@@ -10,7 +10,7 @@ def popenAndCall(onExit, popenArgs):
 	would give to subprocess.Popen.
 	"""
 	def runInThread(onExit, popenArgs):
-		texOutStream = file("/dev/null","a")
+		texOutStream = devnull()
 		proc = subprocess.Popen(*popenArgs,stdout=texOutStream)
 		#proc = subprocess.Popen(popenArgs,shell=True)
 		proc.wait()
@@ -20,5 +20,9 @@ def popenAndCall(onExit, popenArgs):
 	thread.start()
 	# returns immediately after the thread starts
 	return thread
+
+class devnull(object):
+	def write(self,*_):pass
+	def fileno(self):pass
 
 

@@ -82,7 +82,7 @@ collect = file("statistic.csv","a")
 #             numofjob       ,    sleeptime         ,     maxprocess , start, end
 collect.write("#numofjob,sleeptime,maxprocess,start,end,diff\n")
 collect.flush()
-for maxjob in [4,5,6,3]:
+for maxjob in [4]:
 	sleeptime = 10
 	probe = 1
 	while probe > 0:
