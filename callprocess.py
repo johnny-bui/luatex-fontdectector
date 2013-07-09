@@ -11,7 +11,8 @@ def popenAndCall(onExit, popenArgs):
 	"""
 	def runInThread(onExit, popenArgs):
 		texOutStream = devnull()
-		proc = subprocess.Popen(*popenArgs,stdout=texOutStream)
+		texErrStream = devnull()
+		proc = subprocess.Popen(*popenArgs,stdout=texOutStream,stderr=texErrStream)
 		#proc = subprocess.Popen(popenArgs,shell=True)
 		proc.wait()
 		onExit()
