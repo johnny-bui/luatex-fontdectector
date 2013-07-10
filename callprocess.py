@@ -10,8 +10,8 @@ def popenAndCall(onExit, popenArgs):
 	would give to subprocess.Popen.
 	"""
 	def runInThread(onExit, popenArgs):
-		texOutStream = devnull()
-		texErrStream = devnull()
+		texOutStream = open("/dev/null","w")
+		texErrStream = open("/dev/null","w")
 		proc = subprocess.Popen(*popenArgs,stdout=texOutStream,stderr=texErrStream)
 		#proc = subprocess.Popen(popenArgs,shell=True)
 		proc.wait()
