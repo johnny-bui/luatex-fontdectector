@@ -1,6 +1,7 @@
 import threading
 import subprocess
 import shlex
+import os
 
 def popenAndCall(onExit, popenArgs):
 	"""
@@ -10,8 +11,8 @@ def popenAndCall(onExit, popenArgs):
 	would give to subprocess.Popen.
 	"""
 	def runInThread(onExit, popenArgs):
-		texOutStream = open("/dev/null","w")
-		texErrStream = open("/dev/null","w")
+		texOutStream = open(os.devnull,"w")
+		texErrStream = open(os.devnull,"w")
 		proc = subprocess.Popen(*popenArgs,stdout=texOutStream,stderr=texErrStream)
 		#proc = subprocess.Popen(popenArgs,shell=True)
 		proc.wait()

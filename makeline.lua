@@ -88,7 +88,7 @@ function makeline(vector, line_length, f)
 	local latex_code = tikz_prefix .. "\n"
 	f(tikz_prefix)
 
-	local first_line = [[\node[noname] (1)              {\symbol{%04d}\\ \llo{\symbol{%04d} \texttt{%02d}}};]]
+	local first_line = [[\node[noname] (1)              {\symbol{%04d}\\ \textnormal{\symbol{%04d} \texttt{%02d}}};]]
 
 	local line = string.format(first_line, vector[1], vector[1], vector[1], vector[1])
 	
