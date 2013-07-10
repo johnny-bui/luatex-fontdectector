@@ -1,4 +1,4 @@
-import threading
+﻿import threading
 import subprocess
 import shlex
 import os
@@ -14,7 +14,7 @@ def popenAndCall(onExit, popenArgs):
 		texOutStream = open(os.devnull,"w")
 		texErrStream = open(os.devnull,"w")
 		proc = subprocess.Popen(*popenArgs,stdout=texOutStream,stderr=texErrStream)
-		#proc = subprocess.Popen(popenArgs,shell=True)
+		#proc = subprocess.Popen(*popenArgs)
 		proc.wait()
 		onExit()
 		return

@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{article}
+﻿\documentclass[12pt,a4paper]{article}
 \usepackage{luacode,luaotfload}
 \usepackage{fontspec}
 
@@ -6,7 +6,7 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 800
+local max = 400
 
 dofile("makeline.lua")
 
@@ -22,7 +22,8 @@ tabu_font = {
 "Bitter-Italic","Bitter-Bold",
 --"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
 --"SteveHand",
---"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic"
+--"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic",
+"CCIcons"
 }
 
 function foreachinorder(t, cmp)

@@ -1,9 +1,9 @@
-#! /usr/bin/env python
+﻿#! /usr/bin/env python
 from os import listdir
 from glob import glob
 from os.path import isfile, join
 from time import sleep,time,gmtime,strftime
-import shlex
+import shlex, os
 from callprocess import popenAndCall
 
 numOfJob = 0
@@ -41,9 +41,9 @@ def decrementJobNumber():
 
 def startJob(jobName):
 	cmd = "lualatex -output-directory=" \
-		+ tex_dir \
+		+ tex_dir.replace(os.sep,"/") \
 		+ " -interaction nonstopmode " \
-		+ jobName \
+		+ jobName.replace(os.sep,"/") \
 		+ ".tex"
 	print "'", cmd, "'"
 	arg = shlex.split(cmd)
