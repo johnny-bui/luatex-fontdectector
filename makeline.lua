@@ -1,5 +1,5 @@
 doc_prefix=[[
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper,draft]{article}
 \usepackage{fontspec}
 \usepackage{geometry}
 \usepackage{tikz}
@@ -37,7 +37,7 @@ tikz_prefix = [[
     rectangle, %rounded corners=9pt,
     text height=1em,
     text depth=2ex,
-    text width=1.25ex,
+    text width=2ex,
     text centered,
     minimum height=.5cm,
     minimum width=1.5cm,
