@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{luacode}
+\usepackage{luaotfload}
+\begin{document}
+\begin{luacode*}
+
+dofile('commonuse.lua')
+
+myfonts=dofile(fonts.names.path.index.luc)
+
+tex.sprint(fonts.names.path.index.luc)
+tex.sprint('\\\\')
+
+---[[
+for i,v in ipairs(myfonts.mappings) do
+ if (i<5) then
+   print ('\n(' .. i .. ')------------------------------')
+   print (dir(v,0))
+ end
+
+ if v.familyname then
+ tex.print('\\par')
+ tex.print(-2, v.familyname)
+ end
+ if v.fontname then 
+ tex.print(', ')
+ tex.print(-2, v.fontname)
+ end
+ tex.print('\\par')
+end
+--]]
+
+\end{luacode*}
+
+\end{document}
