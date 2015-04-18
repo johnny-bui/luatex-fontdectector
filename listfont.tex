@@ -6,10 +6,10 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 1000
+local max = 10000
 
 dofile("makeline.lua")
-
+dofile("commonuse.lua")
 
 
 tabu_font = {
@@ -18,102 +18,158 @@ tabu_font = {
 "blsy",
 "SkakNew-Diagram","SkakNew-Figurine","SkakNew-Figurine","SkakNew-DiagramT",
 "ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
+"cmex10",
+"cmmi10",
+"cmr10",
+"cmsy10",
+"esint10",
+"eufm10",
+"padauk","padaukbook",
 "rblmi",
-"Bitter-Italic","Bitter-Bold",
+--"Bitter-Italic","Bitter-Bold",
+--"bitter",
 --"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
 --"SteveHand",
 --"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic",
 "CCIcons",
-"GFSArtemis"
+"GFSArtemis",
+"garuda",
+"kinnari",
+"loma",
+"msam10",
+"msbm10",
+"rsfs10",
+"norasi",
+"sawasdee",
+"oxygensansbold",
+--"phaistos",
+--"purisa",
+--"umpush",
+"waree",
+"wasy10",
+"ccicons"
 }
 
+
 function foreachinorder(t, cmp)
+	--- # return 2 Lists
+	--- # * The first list ist the list of all font family name in sytem and tex, alphabetical sorted
+	--  # st. like ['ariel','hveltica']
+	--  # 
+	--  # * The second one ist a map of all font faces in the font family, st. like
+	--  # ['arial'=['arial-itatlic','arial-regular','arial-bold'], 'heveltica'=['heveltica-itatlic','heveltica-regular'] ]
     -- first extract a list of the keys from t
     local font_list = {}
     local font_family = {}
     for k,v in ipairs(t) do
+		local font_name = v
 		if font_family[1] == nil then
 			print ("init font_family")
 			font_family[1] = v.familyname
-			font_list[v.familyname] = {v.fontname}
+			font_list[v.familyname] = {font_name}
 		end
-		local font_name = v.fontname
 		local last_family_name = v.familyname
-		print("name ", font_name , " family ", last_family_name)
+		-- print("name ", font_name , " family ", last_family_name)
 		if (contains(font_family, v.familyname)) then
-			print("", font_name , " to family ", last_family_name)
+			-- print("", font_name , " to family ", last_family_name)
 			local font_tab = font_list[last_family_name]
 			if not contains(font_tab, font_name) then
 				font_tab[#font_tab +1] = font_name
 			end
 		else
-			print ("insert new font family ", v.familyname)
+			-- print ("insert new font family ", v.familyname)
 			font_family[#font_family+1] = v.familyname
-			print ("add ", font_name , "to family", v.familyname)
+			-- print ("add ", font_name , "to family", v.familyname)
 			font_list[v.familyname] = {font_name}
 		end
     end
-    
+ 	-- then sort them   
     table.sort(font_family,cmp)
     return font_family, font_list
 end
 
 
-
+--- Return the section-entry of the font family
 function tex_font_family(font_family)
 	print(font_family)
 	local section = string.format([[
 \section{%s}
-]], font_family,font_family)
-	file:write(section)
-	--tex.print("\\hfill\\\\")
+]], font_family)
+	return section
 end
 
-function tex_font_name(font_name)
-	print("",font_name)
--- %%\subsection{%s {\fontspec[Ligatures=TeX]{%s}abc ABC 12340}}
-	subsection_toc = string.format( [[
-\subsection{%s\hspace{3ex}\hfill|{\fontspec[Ligatures=TeX]{%s}abc ABC 12340}|}
-%%\addcontentsline{toc}{subsection}{\hspace{3ex}|{\fontspec[Ligatures=TeX]{%%s}abc ABC 12340}|}
-]], font_name,font_name)
+function texFontFace(fontObject)
+	local fontLoadreference = fontObject.plainname
+	local fontDisplayName = escapeTexChar( fontObject.plainname )
+	
+	local fontUseCmd,  declareFont = createDeclareFont(fontObject)
 
-	local subsection = subsection_toc
-	print(subsection)
-	file:write(subsection)
+	local demoFont =
+string.format( [[
+\subsection{%s \hspace{3ex} \hfill{\%s ABC abc 123} }
+{\footnotesize\begin{verbatim}
+%s\end{verbatim}}
+\%s ]]
+, fontDisplayName, fontUseCmd, 
+declareFont,
+fontUseCmd
+)
 
-	local set_font_code = string.format([[\fontspec[Ligatures=TeX,Scale=1]{%s}]], font_name)
-	file:write(set_font_code)
-	file:write(make_probe_text())
+	
+	return declareFont, demoFont
 end
 
+-- myfonts=dofile(fonts.names.path.path)
+myfonts=dofile(fonts.names.path.index.luc)
 
-myfonts=dofile(fonts.names.path.path)
-
-local out_dir_name = "./texfont/%s.tex"
-temp_fn = string.format(out_dir_name,"temp")
+--local out_dir_name = "./texfont/%s.tex"
+local out_dir_name = "./texfont/"
+--temp_fn = string.format(out_dir_name,"temp")
+temp_fn = out_dir_name .. "temp.tex"
 file = io.open(temp_fn, "w")
 file:write(string.format(doc_prefix,"Font-List"))
-font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 
+--tempfontDeclare = string.format(out_dir_name, "fontdec")
+tempfontDeclare = out_dir_name .. "fontdec.tex"
+fontDecFile = io.open(tempfontDeclare, "w")
+
+font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 
 local i = 1
 for _ , k in ipairs(font_family) do
+	print ('k=' .. k)
 	if not contains(tabu_font, k) then
+		--- Put an section in output file
 		local font_face= font_list[k]
-		tex_font_family(k)
-		table.sort(font_face,cmp)
+		table.sort(font_face, compareFontObject)
+		local fontFamilyName = (font_face[1]["plainname"]):gsub("-?Regular",""):gsub("-?regular","")
+		if not contains(tabu_font, font_face[1].fontname) then
+			file:write( tex_font_family( escapeTexChar(fontFamilyName) ))
+		end
+		-- print ('fontface= ' .. dir(font_face, 0))
+		-- for eache font face of the font family, put an subsection with sample text
+		-- in output dir
 		for _, font in ipairs(font_face) do
-			if not contains(tabu_font, font) then
-				print (" " , k, "fn:" , font)
-					tex_font_name(font)
-					print(i)
+			local fontObject = font
+			if not contains(tabu_font, fontObject.fontname) then
 					i = i + 1
+					decFontFace, demoFontFace = texFontFace(fontObject)
+					fontDecFile:write( decFontFace )
+					file:write ('{{')
+					file:write( demoFontFace )
+					file:write(make_probe_text())
+					file:write ('}}\n')
 				if i > max then 
+					print ("Font face couter reaches max " .. (i-1) )
 					break
 				end
 			end
 		end
-		if i > max then break end
+
+		if i > max then 
+			print ("Font face couter reaches max " .. (i-1) )
+			break 
+		end
 	end
 end
 
@@ -131,14 +187,18 @@ file:close()
 --	print ("call lualatex returned not null valu not null valuee:",r)
 --end
 
-
+fontCollectDirName = "./build/"
 for i,k in ipairs(font_family) do
 	local font_face=font_list[k]
 	if not contains(tabu_font,font_face) then
-		local file_name = k:gsub("%s+","_"):gsub("'","_")
-		local tex_file = io.open(string.format(out_dir_name,file_name),"w")
-		write_glyphen_test_file(k,font_face,tex_file)
-		if  i >= max then break end
+		local file_name = escapeTexChar(k) .. '.tex'
+--		local tex_file = io.open( string.format(out_dir_name,file_name),"w" )
+		local tex_file = io.open( fontCollectDirName .. file_name,"w" )
+		write_glyphen_test_file(k, font_face, tex_file)
+		if  i >= max then 
+			print ("Font face couter reaches max " .. (i-1) )
+			break 
+		end
 	end
 end
 

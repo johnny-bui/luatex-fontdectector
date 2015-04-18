@@ -6,9 +6,16 @@ BUILD=build
 TF=texfont
 
 listfontpdf: $(TF)/temp.tex
-	$(LLT) -output-directory $(BUILD) $(<)
-	$(LLT) -output-directory $(BUILD) $(<)
-	$(LLT) -output-directory $(BUILD) $(<)
+	cd $(<D) ;\
+	$(LLT) $(<F) ;\
+	$(LLT) $(<F) ;\
+	$(LLT) $(<F) 
+
+quicklist: $(TF)/temp.tex 
+	cd $(<D) ;\
+	$(LLT) $(<F) 
+
+$(TF)/temp.tex : temp listfont.tex makeline.lua
 
 
 temp: listfont.tex $(BUILD) $(TF)

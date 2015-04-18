@@ -8,9 +8,9 @@ To get a list of all fonts in System:
 
 	$ mkdir texfont
 	$ lualatex listfont.tex # generate other tex file
-	$ lualatex texfont/temp.tex # compile the generated file
-	$ lualatex texfont/temp.tex # re-compile the generate file to get table of contents in aux-file
-	$ lualatex texfont/temp.tex # re-compile to get the correct table of contents
+	$ lualatex -output-directory build texfont/temp.tex # compile the generated file
+	$ lualatex -output-directory build texfont/temp.tex # re-compile the generate file to get table of contents in aux-file
+	$ lualatex -output-directory build texfont/temp.tex # re-compile to get the correct table of contents
 
 To get font-table of a font:
 	

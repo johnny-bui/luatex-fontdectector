@@ -6,26 +6,29 @@ from time import sleep,time,gmtime,strftime
 import shlex, os
 from callprocess import popenAndCall
 
-numOfJob = 0
 '''
 	Anzahl der gestarteten lualatex Prozess
 '''
+numOfJob = 0
 
-lastJob = 0
 '''
 	index des letzten Job.
 '''
+lastJob = 0
 
-tex_dir = "texfont"
 '''
 	Wo die generierten TeX Dateien gespeichert werden
 '''
-job = []
+tex_dir = "build"
+
 '''
 	eine "Queue", wo die Dateiname der zu kompilierenden TeX-Dateien
 	gespeichert werden. Es ist nicht Thread-Sage, aber in diesem Fall
 	ist es egal. Siehe auch die try-catch block unten.
 '''
+job = []
+
+latex="xelatex"
 
 def decrementJobNumber():
 	print "decrement numOfJob"
@@ -40,7 +43,7 @@ def decrementJobNumber():
 	pass
 
 def startJob(jobName):
-	cmd = "lualatex -output-directory=" \
+	cmd = latex + " -output-directory=" \
 		+ tex_dir.replace(os.sep,"/") \
 		+ " -interaction nonstopmode " \
 		+ jobName.replace(os.sep,"/") \
@@ -82,7 +85,7 @@ collect = file("statistic.csv","a")
 #             numofjob       ,    sleeptime         ,     maxprocess , start, end
 collect.write("#numofjob,sleeptime,maxprocess,start,end,diff\n")
 collect.flush()
-for maxjob in [4]:
+for maxjob in [16]:
 	sleeptime = 10
 	probe = 1
 	while probe > 0:
