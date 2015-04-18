@@ -6,49 +6,61 @@
 \begin{document}
 \begin{luacode*}
 
-local max = 10000
 
 dofile("makeline.lua")
 dofile("commonuse.lua")
 
-
-tabu_font = {
-"MnSymbol12", "MnSymbol10", "MnSymbol9","MnSymbol8","MnSymbol7","MnSymbol6", "MnSymbol5",
-"MnSymbol-Bold5","MnSymbol-Bold6","MnSymbol-Bold7", "MnSymbol-Bold8","MnSymbol-Bold9","MnSymbol-Bold10", "MnSymbol-Bold12",
-"blsy",
-"SkakNew-Diagram","SkakNew-Figurine","SkakNew-Figurine","SkakNew-DiagramT",
-"ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
-"cmex10",
-"cmmi10",
-"cmr10",
-"cmsy10",
-"esint10",
-"eufm10",
-"padauk","padaukbook",
-"rblmi",
---"Bitter-Italic","Bitter-Bold",
---"bitter",
---"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
---"SteveHand",
---"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic",
-"CCIcons",
-"GFSArtemis",
-"garuda",
-"kinnari",
-"loma",
-"msam10",
-"msbm10",
-"rsfs10",
-"norasi",
-"sawasdee",
-"oxygensansbold",
---"phaistos",
---"purisa",
---"umpush",
-"waree",
-"wasy10",
-"ccicons"
-}
+function tabulFontFamily(fontFamilyName)
+	tabu_font = {
+	"MnSymbol12", "MnSymbol10", "MnSymbol9","MnSymbol8","MnSymbol7","MnSymbol6", "MnSymbol5",
+	"MnSymbol-Bold5","MnSymbol-Bold6","MnSymbol-Bold7", "MnSymbol-Bold8","MnSymbol-Bold9","MnSymbol-Bold10", "MnSymbol-Bold12",
+	"blsy",
+	"SkakNew-Diagram","SkakNew-Figurine","SkakNew-Figurine","SkakNew-DiagramT",
+	"ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
+	"cmex10",
+	"cmmi10",
+	"cmr10",
+	"cmsy10",
+	"esint10",
+	"eufm10",
+	"padauk","padaukbook",
+	"rblmi",
+	--"Bitter-Italic","Bitter-Bold",
+	--"bitter",
+	--"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
+	--"SteveHand",
+	--"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic",
+	"CCIcons",
+	"GFSArtemis",
+	"garuda",
+	"kinnari",
+	"loma",
+	"msam10",
+	"msbm10",
+	"rsfs10",
+	"norasi",
+	"sawasdee",
+	"oxygensansbold",
+	--"phaistos",
+	--"purisa",
+	--"umpush",
+	"waree",
+	"wasy10",
+	"ccicons"
+	}
+	whiteList ={
+		cmuserif
+		cmuserifextra 
+		fontinsans
+		
+	}
+	return contains(tabu_font, fontFamilyName)
+	--return not contains(whiteList, fontFamilyName)
+end
+	
+function tabuFontFace(fontObject)
+	return false
+end
 
 
 function foreachinorder(t, cmp)
@@ -90,86 +102,89 @@ end
 
 
 --- Return the section-entry of the font family
-function tex_font_family(font_family)
+function tex_font_family(fontObject)
+	local font_name = escapeTexChar( (fontObject.plainname)
+							:gsub("-?[R|r]egular","")
+							:gsub("-?[T|t]hin","") 
+							:gsub("-?[L|l]ight","") 
+							:gsub("-?[X|x]tra[L|l]ight","") 
+							)
+	local font_family = fontObject.familyname
 	print(font_family)
 	local section = string.format([[
-\section{%s}
-]], font_family)
+\section{%s \hspace{3ex}\hfill \texttt{%s}}
+]], font_name, font_family)
 	return section
 end
 
 function texFontFace(fontObject)
 	local fontLoadreference = fontObject.plainname
 	local fontDisplayName = escapeTexChar( fontObject.plainname )
-	
 	local fontUseCmd,  declareFont = createDeclareFont(fontObject)
 
 	local demoFont =
-string.format( [[
+	string.format( [[
 \subsection{%s \hspace{3ex} \hfill{\%s ABC abc 123} }
 {\footnotesize\begin{verbatim}
 %s\end{verbatim}}
-\%s ]]
-, fontDisplayName, fontUseCmd, 
-declareFont,
-fontUseCmd
-)
-
-	
+{{\%s 
+%s }}
+]]
+, 		fontDisplayName, fontUseCmd, 
+		declareFont,
+		fontUseCmd , 
+		make_probe_text() )
 	return declareFont, demoFont
 end
 
 -- myfonts=dofile(fonts.names.path.path)
 myfonts=dofile(fonts.names.path.index.luc)
 
---local out_dir_name = "./texfont/%s.tex"
 local out_dir_name = "./texfont/"
---temp_fn = string.format(out_dir_name,"temp")
 temp_fn = out_dir_name .. "temp.tex"
 file = io.open(temp_fn, "w")
 file:write(string.format(doc_prefix,"Font-List"))
 
---tempfontDeclare = string.format(out_dir_name, "fontdec")
 tempfontDeclare = out_dir_name .. "fontdec.tex"
 fontDecFile = io.open(tempfontDeclare, "w")
 
 font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 
+local max = 10000
 local i = 1
-for _ , k in ipairs(font_family) do
-	print ('k=' .. k)
-	if not contains(tabu_font, k) then
+for j , k in ipairs(font_family) do
+	--print ('k=' .. k)
+	local font_face= font_list[k]
+	local fontFamilyName = (font_face[1]["plainname"]):gsub("-?Regular",""):gsub("-?regular","")
+	if not tabulFontFamily(k) then
 		--- Put an section in output file
-		local font_face= font_list[k]
 		table.sort(font_face, compareFontObject)
-		local fontFamilyName = (font_face[1]["plainname"]):gsub("-?Regular",""):gsub("-?regular","")
-		if not contains(tabu_font, font_face[1].fontname) then
-			file:write( tex_font_family( escapeTexChar(fontFamilyName) ))
-		end
-		-- print ('fontface= ' .. dir(font_face, 0))
+		print (dir(font_face, 0))
+		file:write( tex_font_family( font_face[1] ))
 		-- for eache font face of the font family, put an subsection with sample text
 		-- in output dir
 		for _, font in ipairs(font_face) do
 			local fontObject = font
-			if not contains(tabu_font, fontObject.fontname) then
-					i = i + 1
-					decFontFace, demoFontFace = texFontFace(fontObject)
-					fontDecFile:write( decFontFace )
-					file:write ('{{')
-					file:write( demoFontFace )
-					file:write(make_probe_text())
-					file:write ('}}\n')
-				if i > max then 
-					print ("Font face couter reaches max " .. (i-1) )
-					break
-				end
+			if not tabuFontFace(fontObject) then
+				--print (dir(fontObject,0))
+				i = i + 1
+				decFontFace, demoFontFace = texFontFace(fontObject)
+				fontDecFile:write( decFontFace )
+				file:write( demoFontFace )
+			else
+				--print ("+++++++++++++++++++ Ignore font family " .. dir(fontObject) )
+			end
+			if i > max then 
+				print ("Font face couter reaches max " .. (i-1) )
+				break
 			end
 		end
-
-		if i > max then 
-			print ("Font face couter reaches max " .. (i-1) )
-			break 
-		end
+	else
+		--print ("%%%%%%%%%%%%%%%%%%%%%%%%%%% Ignore font family " .. k .. " (name: " .. fontFamilyName .. ")" )
+	end
+	if i > max then 
+		print ("Font face couter reaches max " .. (i-1) )
+		break 
 	end
 end
 

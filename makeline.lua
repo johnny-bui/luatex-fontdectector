@@ -1,5 +1,5 @@
 doc_prefix=[[
-\documentclass[11pt,a4paper,draft]{article}
+\documentclass[11pt,a4paper,final]{article}
 \usepackage{fontspec}
 \usepackage{geometry}
 \usepackage{tikz}
@@ -11,7 +11,7 @@ doc_prefix=[[
 }
 \usepackage[hidelinks]{hyperref}
 \setmainfont[Ligatures=TeX]{Linux Libertine O}
-\setmonofont[Ligatures=TeX,Scale=0.8]{Luxi Mono}
+\setmonofont[Ligatures=TeX,Scale=0.75]{Luxi Mono}
 
 \input{fontdec}
 
@@ -55,6 +55,7 @@ glyphenPrefix=[[
 
 doc_suffix=[[
 \end{document}
+
 ]]
 
 
@@ -166,7 +167,7 @@ function make_table(from, to, step, tab)
 end
 
 function write_glyphen_test_file(font_family, font_name, tex_file)
-	print("font_name=" .. dir(font_name, 0))
+	-- print("font_name=" .. dir(font_name, 0))
 	table.sort(font_name, compareFontObject)
 	local fontFamilyDeclare = ""
 	local fontFaceUsageCmd = {[1]="x"}

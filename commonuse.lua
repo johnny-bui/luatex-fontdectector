@@ -30,17 +30,65 @@ end
 
 
 function compareFontObject(a, b)
-	local subfontmap = { ["regular"] = 0, ["italic"] = 1, ["bold"] = 2, ["bolditalic"] = 3 }
+	local subfontmap = { 
+		["regular"] = 0, ["book"]=10 ,["medium"]= 20, 
+		["italic"] = 100,["mediumitalic"]=120,["oblique"]=110, 
+		["bold"] = 200, ["semibold"] = 210, ["semibolditalic"] = 230,
+		["bolditalic"] = 300, ["boldoblique"] = 310 
+	}
 	local subfontA = subfontmap[a["subfamily"]] or 100000;
 	local subfontB = subfontmap[b["subfamily"]] or 100000;
+	
+	local prefmodifiersMap = {
+		["thin"]            = -10, ["thinitalic"]           = -10,
+		["extralight"]      = -5,  ["extralightitalic"]     = -5 ,
+		["light"]           = 0,   ["lightitalic"]          = 0,
+		["regular"]         = 5,   ["oblique"]              = 5,  ["book"]             = 5 , ["bold"]                = 5, ["boldoblique"]  = 5,
+		["medium"]          = 6,   ["mediumitalic"]         = 6,
+		["extrabold"]       = 7,   ["extrabolditalic"]      = 7,
+		["semicondregular"] = 10,  ["semiconditalic"]       = 10, ["semicondbold"]     = 10,  ["semicondbolditalic"] = 10,
+		["condensed"]       = 20,  ["condregular"]          = 20, ["condensedoblique"] = 20,  
+			["condenseditalic"]     = 20, ["conditalic"]           = 20, 
+			["condensedbold"]       = 20, ["condensedboldoblique"] =20, 
+			["condensedbolditalic"] = 20, ["condbold"] = 20,  
+			["condbolditalic"]      = 20,
+		["semiexpdregular"] = 30,  ["semiexpditalic"]	    = 30, ["semiexpdbold"]     = 30,  ["semiexpdbolditalic"] = 30,  
+		["expdregular"]     = 40,  ["expditalic"]           = 40 ,["expdbold"]         = 40,  ["expdbolditalic"]     = 40,
+		["black"]           = 50,  ["blackitalic"]          = 50 
+	}
+	local prefmodifiersA = prefmodifiersMap[a["prefmodifiers"]] or prefmodifiersMap["regular"];
+	local prefmodifiersB = prefmodifiersMap[b["prefmodifiers"]] or prefmodifiersMap["regular"];
+	
 	--print ("subfontA= " .. subfontA .. " subfontB= " .. subfontB)
-
-	if (subfontA ~= subfontB) then
-		return subfontA < subfontB ;
+	local weightA = a["weight"][1];
+	local weightB = b["weight"][1];
+	
+--[[	
+	if prefmodifiersA ~= prefmodifiersB then
+		return prefmodifiersA < prefmodifiersB 
 	else
-		local weightA = a["weight"][1];
-		local weightB = b["weight"][1];
+		if (weightA ~= weightB) then
+			return weightA < weightB;
+		else
+			if subfontA ~= subfontB then
+				return subfontA < subfontB 
+			else
+				return string.lower(a.fullpath) < string.lower(b.fullpath)
+			end
+		end
+	end
+--]]if (weightA ~= weightB) then
 		return weightA < weightB;
+	else
+		if prefmodifiersA ~= prefmodifiersB then
+			return prefmodifiersA < prefmodifiersB 
+		else
+			if subfontA ~= subfontB then
+				return subfontA < subfontB 
+			else
+				return string.lower(a.fullpath) < string.lower(b.fullpath)
+			end
+		end
 	end
 end
 
