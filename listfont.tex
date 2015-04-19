@@ -10,52 +10,47 @@
 dofile("makeline.lua")
 dofile("commonuse.lua")
 
-function tabulFontFamily(fontFamilyName)
-	tabu_font = {
-	"MnSymbol12", "MnSymbol10", "MnSymbol9","MnSymbol8","MnSymbol7","MnSymbol6", "MnSymbol5",
-	"MnSymbol-Bold5","MnSymbol-Bold6","MnSymbol-Bold7", "MnSymbol-Bold8","MnSymbol-Bold9","MnSymbol-Bold10", "MnSymbol-Bold12",
-	"blsy",
-	"SkakNew-Diagram","SkakNew-Figurine","SkakNew-Figurine","SkakNew-DiagramT",
-	"ocrb8","ocrb9","ocrb10","ocrb6","ocrb7","ocrb5",
-	"cmex10",
-	"cmmi10",
-	"cmr10",
-	"cmsy10",
-	"esint10",
-	"eufm10",
-	"padauk","padaukbook",
-	"rblmi",
-	--"Bitter-Italic","Bitter-Bold",
-	--"bitter",
-	--"STIXGeneral-Bold","STIXGeneral-Italic","STIXGeneral-Regular","STIXGeneral-BoldItalic",
-	--"SteveHand",
-	--"TeXGyreHeros-BoldItalic","TeXGyreCursor-Regular","TeXGyreCursor-Italic",
-	"CCIcons",
-	"GFSArtemis",
-	"garuda",
-	"kinnari",
-	"loma",
-	"msam10",
-	"msbm10",
-	"rsfs10",
-	"norasi",
-	"sawasdee",
-	"oxygensansbold",
-	--"phaistos",
-	--"purisa",
-	--"umpush",
-	"waree",
-	"wasy10",
-	"ccicons"
+function tabuFontFamily(fontFamilyName)
+	blackList ={
+		"marvosym",
+		"droidsansjapanese",
+		"emmentalerbrace",
+		"mathjaxsize3",
+		"blsy",
+		"tibetanmachineuni",
+		"mathjaxwinie6",
+		"ccicons",
+		"mathjaxams",
+		"fonetikadaniaiwonae",
+		"mathjaxtypewriter",
+		"rblmi",
+		"mathjaxscript",
+		"blex",
+		"mrykacstqurn",
+		"mathjaxwinchrome",
+		"ebgaramondinitials",
+		"mathjaxsize1",
+		"mathjaxfraktur",
+		"mathjaxsansserif",
+		"mathjaxmath",
+		"webdings",
+		"rsfs10",
+		"mathjaxsize4",
+		"mathjaxcaligraphic",
+		"mathjaxmain",
+		"fonetikadaniapallae",
+		"mathjaxsize2",
+		"mnsymbol"	 
 	}
+
 	whiteList ={
-		cmuserif
-		cmuserifextra 
-		fontinsans
-		
+		--"cmuserif",
+		--"cmuserifextra",
+		"fontinsans"
 	}
-	return contains(tabu_font, fontFamilyName)
+	return contains(blackList, fontFamilyName)
 	--return not contains(whiteList, fontFamilyName)
+	--return false
 end
 	
 function tabuFontFace(fontObject)
@@ -110,7 +105,7 @@ function tex_font_family(fontObject)
 							:gsub("-?[X|x]tra[L|l]ight","") 
 							)
 	local font_family = fontObject.familyname
-	print(font_family)
+	--print(font_family)
 	local section = string.format([[
 \section{%s \hspace{3ex}\hfill \texttt{%s}}
 ]], font_name, font_family)
@@ -153,13 +148,14 @@ font_family, font_list = foreachinorder(myfonts.mappings, str_sort)
 local max = 10000
 local i = 1
 for j , k in ipairs(font_family) do
-	--print ('k=' .. k)
+	print ('Try to use font family ' .. k)
 	local font_face= font_list[k]
 	local fontFamilyName = (font_face[1]["plainname"]):gsub("-?Regular",""):gsub("-?regular","")
-	if not tabulFontFamily(k) then
+	print ('\tFont family ' .. k .. ' has name ' .. fontFamilyName)
+	if not tabuFontFamily(k) then
 		--- Put an section in output file
 		table.sort(font_face, compareFontObject)
-		print (dir(font_face, 0))
+		--- print (dir(font_face, 0))
 		file:write( tex_font_family( font_face[1] ))
 		-- for eache font face of the font family, put an subsection with sample text
 		-- in output dir
@@ -167,20 +163,21 @@ for j , k in ipairs(font_family) do
 			local fontObject = font
 			if not tabuFontFace(fontObject) then
 				--print (dir(fontObject,0))
+				print ("\tProcess font face " .. fontObject.plainname .. ' from ' .. fontObject.fullpath)
 				i = i + 1
 				decFontFace, demoFontFace = texFontFace(fontObject)
 				fontDecFile:write( decFontFace )
 				file:write( demoFontFace )
 			else
-				--print ("+++++++++++++++++++ Ignore font family " .. dir(fontObject) )
+				print ("\t!Ignore font family " .. dir(fontObject) )
 			end
 			if i > max then 
-				print ("Font face couter reaches max " .. (i-1) )
+				print ("\t!Font face couter reaches max " .. (i-1) )
 				break
 			end
 		end
 	else
-		--print ("%%%%%%%%%%%%%%%%%%%%%%%%%%% Ignore font family " .. k .. " (name: " .. fontFamilyName .. ")" )
+		print ("\t!Ignore font family " .. k .. " (name: " .. fontFamilyName .. ")" )
 	end
 	if i > max then 
 		print ("Font face couter reaches max " .. (i-1) )
@@ -204,12 +201,11 @@ file:close()
 
 fontCollectDirName = "./build/"
 for i,k in ipairs(font_family) do
-	local font_face=font_list[k]
-	if not contains(tabu_font,font_face) then
+	local fontName=font_list[k]
+	if not tabuFontFamily (fontName) then
 		local file_name = escapeTexChar(k) .. '.tex'
---		local tex_file = io.open( string.format(out_dir_name,file_name),"w" )
 		local tex_file = io.open( fontCollectDirName .. file_name,"w" )
-		write_glyphen_test_file(k, font_face, tex_file)
+		write_glyphen_test_file(k, fontName, tex_file)
 		if  i >= max then 
 			print ("Font face couter reaches max " .. (i-1) )
 			break 

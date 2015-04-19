@@ -30,7 +30,7 @@ $(TF):
 clean:
 	$(RM) *.aux *.log *.out *.pyc
 
-clean-all:
+clean-all: clean
 	$(RM) -r $(TF) $(BUILD) *.pdf
 
 

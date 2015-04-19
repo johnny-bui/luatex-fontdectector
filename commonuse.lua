@@ -43,7 +43,7 @@ function compareFontObject(a, b)
 		["thin"]            = -10, ["thinitalic"]           = -10,
 		["extralight"]      = -5,  ["extralightitalic"]     = -5 ,
 		["light"]           = 0,   ["lightitalic"]          = 0,
-		["regular"]         = 5,   ["oblique"]              = 5,  ["book"]             = 5 , ["bold"]                = 5, ["boldoblique"]  = 5,
+		["regular"]         = 5,   ["oblique"]              = 5,  ["book"]             = 5 , ["bold"]                = 5, ["boldoblique"]  = 5, ["bolditalic"] = 5,
 		["medium"]          = 6,   ["mediumitalic"]         = 6,
 		["extrabold"]       = 7,   ["extrabolditalic"]      = 7,
 		["semicondregular"] = 10,  ["semiconditalic"]       = 10, ["semicondbold"]     = 10,  ["semicondbolditalic"] = 10,
@@ -54,7 +54,8 @@ function compareFontObject(a, b)
 			["condbolditalic"]      = 20,
 		["semiexpdregular"] = 30,  ["semiexpditalic"]	    = 30, ["semiexpdbold"]     = 30,  ["semiexpdbolditalic"] = 30,  
 		["expdregular"]     = 40,  ["expditalic"]           = 40 ,["expdbold"]         = 40,  ["expdbolditalic"]     = 40,
-		["black"]           = 50,  ["blackitalic"]          = 50 
+		["black"]           = 50,  ["blackitalic"]          = 50 ,
+		["smallcaps"] = 400
 	}
 	local prefmodifiersA = prefmodifiersMap[a["prefmodifiers"]] or prefmodifiersMap["regular"];
 	local prefmodifiersB = prefmodifiersMap[b["prefmodifiers"]] or prefmodifiersMap["regular"];
